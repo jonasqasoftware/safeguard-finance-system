@@ -1,6 +1,7 @@
 {
   "scripts": {
   "start": "node src/index.js",
-  "test": "mocha tests/**/*.test.js"
+  "test": "mocha tests/**/*.test.js",
+  "penetration-test": "mocha tests/penetrationTests/*.test.js"
 }
 }
