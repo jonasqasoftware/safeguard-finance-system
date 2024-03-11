@@ -1,9 +1,11 @@
 const helmet = require('helmet');
 const express = require('express');
 const xss = require('xss');
+
 const app = express();
 
 app.use(helmet());
+
 
 function simulateSqlInjection(input) {
     // Verifica se a entrada contém palavras-chave de injeção de SQL

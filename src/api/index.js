@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 const securityMiddleware = require('../middleware/securityMiddleware');
 const transactionService = require('../../services/transactionService');
+const securityConfig = require('../config/security');
 
 const app = express();
 
 // Configuração do Express e Rotas
+app.use(securityConfig);
 app.use(express.json());
 
 // Rota para processamento seguro de transações
