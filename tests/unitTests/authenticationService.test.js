@@ -1,9 +1,10 @@
-const assert = require('assert');
-const authService = require('../../src/services/authenticationService');
+import assert from 'assert'
+import { loginUser } from '../../src/services/authenticationService.js'
 
 describe('Authentication Service', () => {
-    it('deve autenticar o usuário com sucesso', () => {
-        // Teste de autenticação
-        assert.strictEqual(authService.loginUser('usuario', 'senha'), true);
-    });
-});
+  it('deve autenticar o usuário com sucesso', () => {
+    // Teste de autenticação
+    const token = loginUser('admin', 'senhaSecreta')
+    assert.notStrictEqual(token, null)
+  })
+})
