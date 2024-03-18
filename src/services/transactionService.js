@@ -1,28 +1,33 @@
-const database = require('../config/database');
-const security = require('../config/security');
+// Importando módulos ESM
+import { saveTransaction } from '../config/database.js'
+import { sanitizeHTML } from '../config/security.js'
 
+// Função para processar transação
 function processTransaction(transactionData) {
-    // Lógica de processamento de transação
-    const sanitizedData = sanitizeInput(transactionData);
-    database.saveTransaction(sanitizedData);
-}
+  // Lógica de processamento de transação
+  const sanitizedData = sanitizeInput(transactionData)
+  saveTransaction(sanitizedData)
 
+
+// Função para sanitizar input (prevenção de XSS)
 function sanitizeInput(data) {
-    // Implementação da sanitização para prevenção de XSS
-    return security.sanitizeHTML(data);
+  return sanitizeHTML(data)
 }
 
-function processTransaction(transactionData) {
-    // Lógica de processamento de transação
-    const sanitizedData = sanitizeInput(transactionData);
-    database.saveTransaction(sanitizedData);
+// Exportando a função de processamento de transação
+export { processTransaction }
+
+// Definindo a classe SecurityLogService
+class SecurityLogService {
+  constructor() {
+    this.logs = []
+  }
+
+  // Método para obter logs
+  getLogs() {
+    return this.logs
+  }
 }
 
-function sanitizeInput(data) {
-    // Implementação da sanitização para prevenção de SQL Injection
-    return data.replace(/'/g, "''");
-}
-
-module.exports = {
-    processTransaction,
-};
+// Exportando uma instância única do serviço
+export default new SecurityLogService()
