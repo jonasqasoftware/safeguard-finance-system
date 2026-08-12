@@ -1,138 +1,89 @@
-# Sistema de Finanças Safeguard
+# Safeguard Finance System
 
-## Visão Geral
+A security-focused Quality Engineering lab for a small transactional REST API. The project demonstrates how threat modeling, negative tests, deterministic error contracts, and automated quality gates can turn security requirements into executable evidence.
 
-O Sistema de Finanças Safeguard é um sistema de gerenciamento de transações financeiras que prioriza a segurança da informação. Desenvolvido para simular operações típicas de uma instituição financeira, o projeto destaca-se pela implementação de práticas avançadas de segurança, garantindo a proteção dos dados sensíveis dos usuários.
+> This is an educational portfolio project, not a production banking platform. Transactions are held in memory and disappear when the process restarts. It makes no claim of regulatory certification or penetration-test coverage.
 
-## Estrutura do Projeto
+## Why this project exists
 
-```
-safeguard-finance-system
-├── src
-│   ├── api
-│   │   ├── controllers
-│   │   ├── middleware
-│   │   ├── routes
-│   │   └── index.js
-│   ├── config
-│   │   ├── auth.js
-│   │   ├── database.js
-│   │   ├── security.js
-│   │   └── securityMiddleware.js
-│   ├── services
-│   │   ├── authenticationService.js
-│   │   ├── encryptionService.js
-│   │   ├── securityLogService.js
-│   │   └── transactionService.js
-│   └── index.js
-├── tests
-│   ├── penetrationTests
-│   │   ├── sqlInjection.test.js
-│   │   ├── xss.test.js
-│   │   └── sessionTheft.test.js
-│   └── unitTests
-│       ├── authenticationService.test.js
-│       ├── encryptionService.test.js
-│       ├── transactionService.test.js
-│       └── securityLogService.test.js
-├── .gitignore
-├── package.json
-├── README.md
-├── CONTRIBUTING.md
-├── LICENSE
-└── .env
+The lab prioritizes high-risk behavior: authentication bypass, token tampering, malicious input, oversized or malformed requests, abusive request volume, insecure defaults, and accidental secret disclosure. Each control has a corresponding automated check where practical.
+
+## Architecture
+
+```text
+HTTP request
+  -> Helmet + JSON size limit + rate limiter
+  -> request correlation
+  -> authentication boundary (JWT)
+  -> validation and text sanitization
+  -> in-memory transaction store
+  -> stable JSON response
 ```
 
-## Configuração do Ambiente
+The intentionally small architecture keeps the security decisions reviewable. If a database is added, parameterized queries and least-privilege database credentials must be the primary SQL-injection controls; the current suspicious-input rule is only an educational boundary check.
 
-1. **Git:**
+## Run locally
 
-   - Configure o Git e adicione o repositório remoto:
-
-     ```bash
-     git init
-     git add .
-     git commit -m "chore: configuração inicial do projeto"
-     git remote add origin <url-do-repositorio-no-git>
-     git push -u origin master
-     ```
-
-2. **Variáveis de Ambiente:**
-
-   - Crie um arquivo `.env` na raiz do projeto e adicione as seguintes variáveis:
-
-     ```
-     JWT_SECRET=segredo_jwt
-     ENCRYPTION_KEY=chave_de_criptografia
-     ```
-
-## Dependências
-
-O projeto utiliza diversas dependências para garantir a segurança e funcionamento adequado. Certifique-se de instalar todas as dependências executando o comando:
+Requirements: Node.js 20 or newer.
 
 ```bash
-npm install
+npm ci
+cp .env.example .env
 ```
 
-## Scripts Úteis
+Export the values from `.env` in your shell, then start the API:
 
-- **Iniciar o Servidor:**
+```bash
+set -a && source .env && set +a
+npm start
+```
 
-  ```bash
-  npm start
-  ```
+The process fails closed if credentials or the JWT secret are absent. Never commit `.env`.
 
-- **Executar Testes Unitários:**
+## API
 
-  ```bash
-  npm test
-  ```
+| Method | Route               | Authentication | Purpose                        |
+| ------ | ------------------- | -------------- | ------------------------------ |
+| `GET`  | `/health`           | No             | Liveness signal                |
+| `POST` | `/api/auth/login`   | No             | Issue a 15-minute JWT          |
+| `GET`  | `/api/transactions` | Bearer token   | List in-memory transactions    |
+| `POST` | `/api/transactions` | Bearer token   | Validate and add a transaction |
 
-- **Executar Testes de Penetração:**
+Example login:
 
-  ```bash
-  npm run penetration-test
-  ```
+```bash
+curl -s http://localhost:3000/api/auth/login \
+  -H 'content-type: application/json' \
+  -d '{"username":"quality-admin","password":"replace-this-password"}'
+```
 
-## Proteções Implementadas
+## Quality evidence
 
-1. **Autenticação e Autorização:**
+```bash
+npm run validate
+npm audit --omit=dev
+```
 
-   - Utilização de OAuth e JWT para autenticação segura.
-   - Controle de acesso aos endpoints da API.
+`validate` enforces linting, formatting, and tests with Node's built-in coverage report. Tests exercise positive and negative authentication, forged and missing tokens, SQL-shaped input, XSS-shaped markup, malformed JSON, validation, rate limiting, headers, request correlation, and the authenticated transaction flow.
 
-2. **Testes de Penetração:**
+See [Quality Strategy](docs/QUALITY_STRATEGY.md) for the risk-to-test matrix and [Threat Model](docs/THREAT_MODEL.md) for trust boundaries, mitigations, and residual risks.
 
-   - Simulação de ataques de segurança para identificar vulnerabilidades.
+## Security design notes
 
-3. **Criptografia de Dados:**
+- Secrets and administrator credentials are injected through environment variables.
+- JWT verification pins issuer, audience, and `HS256`; tokens expire after 15 minutes.
+- Credential comparison uses fixed-length digests and timing-safe comparison.
+- Helmet supplies defensive HTTP headers; Express implementation headers are disabled.
+- Bodies are limited to 10 KB and requests are rate-limited.
+- Free text is stripped of executable markup before storage.
+- Request logs contain metadata and correlation IDs, not credentials or tokens.
 
-   - Proteção de informações sensíveis, como dados de transações.
+Output encoding remains the responsibility of any client rendering API values. The project does not store cardholder data, encrypt persisted records, implement OAuth, or demonstrate PCI DSS/GDPR compliance.
 
-4. **Práticas de Segurança Recomendadas:**
+## Contributing
 
-   - Prevenção contra SQL Injection, Cross-Site Scripting (XSS) e outros ataques comuns.
+Read [CONTRIBUTING.md](CONTRIBUTING.md). Security reports should avoid including live credentials, tokens, or personal data.
 
-5. **Conformidade com Regulamentações:**
+## License
 
-   - Adesão a padrões como PCI DSS e GDPR.
-
-6. **Integração com Framework de Segurança Web (Helmet):**
-
-   - Melhoria da segurança da aplicação web através de políticas HTTP.
-
-7. **Módulo de Log de Segurança:**
-   - Registro de eventos significativos relacionados à segurança.
-
-## Simulação de Ataques
-
-- Para simular ataques de segurança, utilize os testes de penetração fornecidos em `tests/penetrationTests`.
-- Certifique-se de entender completamente as implicações antes de realizar simulações em ambientes de produção.
-
-## Contribuição
-
-Sinta-se à vontade para contribuir! Consulte as [diretrizes de contribuição](CONTRIBUTING.md).
-
-## Licença
-
-Este projeto é licenciado sob a [Licença MIT](LICENSE).
+MIT — see [LICENSE](LICENSE).
