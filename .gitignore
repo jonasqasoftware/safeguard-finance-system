@@ -1,5 +1,7 @@
 # Node.js
 node_modules/
+.npm-cache/
+coverage/
 npm-debug.log
 
 # Logs
