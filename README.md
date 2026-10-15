@@ -1,5 +1,13 @@
 # Safeguard Finance System
 
+<p align="center">
+  <img src="docs/brand/social-preview.png" alt="Jonas Davila: engenharia de qualidade com evidência, clareza e método" width="100%">
+</p>
+
+[![CI](https://github.com/jonasqasoftware/safeguard-finance-system/actions/workflows/quality.yml/badge.svg)](https://github.com/jonasqasoftware/safeguard-finance-system/actions/workflows/quality.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-1e2024.svg)](LICENSE) [![Jonas Davila](https://img.shields.io/badge/portfolio-jonasdavila.com.br-a8432f.svg)](https://jonasdavila.com.br/en/)
+
+> **In English:** A security-focused Quality Engineering lab for a small transactional REST API: threat modeling, negative tests, deterministic error contracts and automated quality gates. An educational project, not production-ready.
+
 A security-focused Quality Engineering lab for a small transactional REST API. The project demonstrates how threat modeling, negative tests, deterministic error contracts, and automated quality gates can turn security requirements into executable evidence.
 
 > This is an educational portfolio project, not a production banking platform. Transactions are held in memory and disappear when the process restarts. It makes no claim of regulatory certification or penetration-test coverage.
